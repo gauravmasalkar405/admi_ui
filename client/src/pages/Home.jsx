@@ -2,7 +2,6 @@ import { Box, styled } from "@mui/material";
 import React, { useEffect } from "react";
 import Searchbar from "../components/Searchbar";
 import Data from "../components/Data";
-import Pagination from "../components/Pagination";
 import { fetchData } from "../redux/slice/userData";
 import { useDispatch } from "react-redux";
 
@@ -22,9 +21,6 @@ const Home = () => {
       <Box className="user-data">
         <Data />
       </Box>
-      <Box className="pagination">
-        <Pagination />
-      </Box>
     </HomeWrapper>
   );
 };
@@ -42,10 +38,6 @@ const HomeWrapper = styled(Box)`
   }
 
   .user-data {
-    height: 82vh;
-  }
-
-  .pagination {
-    height: 9vh;
+    height: 91vh;
   }
 `;
