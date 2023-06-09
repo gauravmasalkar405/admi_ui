@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Box, styled, Typography, Button, IconButton } from "@mui/material";
+import {
+  Box,
+  styled,
+  Typography,
+  Button,
+  IconButton,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 import { useSelector } from "react-redux";
 import User from "./User";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
@@ -12,6 +20,7 @@ const Data = () => {
   const [filteredData, setFilteredData] = useState([]); // Stores the filtered data
   const [deletedUsers, setDeletedUsers] = useState([]); // Stores the deleted users
   const [selectedUsers, setSelectedUsers] = useState([]); // Stores the selected users
+  const [isAllUsersSelected, setAllUsersSelected] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Tracks the current page number
   const usersPerPage = 10; // Number of users to display per page
 
@@ -58,6 +67,7 @@ const Data = () => {
       .filter(({ name }) => !deletedUsers.includes(name));
 
     setFilteredData(filteredUsers); // Updates the filteredData state with the filtered users
+    setAllUsersSelected(false); // after deleting setAllUsersSelected to false
   }, [data, searchTerm, deletedUsers]);
 
   // Paginates the filtered data
@@ -73,13 +83,31 @@ const Data = () => {
     setCurrentPage(pageNumber);
   };
 
+  // Handles selection of all users visible on page
+  const handleAllSelect = (e) => {
+    const { checked } = e.target;
+    setAllUsersSelected(checked);
+    if (checked) {
+      const users = [];
+      for (let user of currentUsers) {
+        users.push(user.name);
+      }
+      setSelectedUsers((prevSelectedUsers) => [...prevSelectedUsers, ...users]);
+    } else setSelectedUsers([]);
+  };
+
   return (
     <DataWrapper>
       <Box className="titles-and-users-container">
         <Box className="titles-container">
-          <Typography className="titles">
-            Select{filteredData.length + " " + currentPage}
-          </Typography>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isAllUsersSelected}
+                onChange={handleAllSelect}
+              />
+            }
+          />
           <Typography className="titles">Name</Typography>
           <Typography className="titles">Email</Typography>
           <Typography className="titles">Role</Typography>
@@ -96,6 +124,7 @@ const Data = () => {
                   role={role}
                   onDelete={() => handleDeleteUser(name)}
                   onSelect={handleSelectUser}
+                  selectedUsers={selectedUsers}
                 />
               );
             })}
@@ -110,34 +139,53 @@ const Data = () => {
         </Button>
         <Box className="page-numbers-container">
           <IconButton
+            className="nav-btn"
             disabled={currentPage === 1}
             onClick={() => handlePageChange(1)}
+            sx={{ backgroundColor: currentPage === 1 ? "white" : "#1da1f2" }}
           >
             <KeyboardDoubleArrowLeftIcon />
           </IconButton>
           <IconButton
+            className="nav-btn"
             disabled={currentPage === 1}
             onClick={() => handlePageChange(currentPage - 1)}
+            sx={{ backgroundColor: currentPage === 1 ? "white" : "#1da1f2" }}
           >
             <KeyboardArrowLeftIcon />
           </IconButton>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <IconButton
-              onClick={() => handlePageChange(page)}
-              disabled={currentPage === page}
-            >
-              {page}
-            </IconButton>
-          ))}
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+            (page, index) => (
+              <IconButton
+                className="nav-btn"
+                key={index}
+                onClick={() => handlePageChange(page)}
+                disabled={currentPage === page}
+                sx={{
+                  backgroundColor: currentPage === page ? "white" : "#1da1f2",
+                }}
+              >
+                {page}
+              </IconButton>
+            )
+          )}
           <IconButton
+            className="nav-btn"
             disabled={currentPage === totalPages}
             onClick={() => handlePageChange(currentPage + 1)}
+            sx={{
+              backgroundColor: currentPage === totalPages ? "white" : "#1da1f2",
+            }}
           >
             <KeyboardArrowRightIcon />
           </IconButton>
           <IconButton
+            className="nav-btn"
             disabled={currentPage === totalPages}
             onClick={() => handlePageChange(totalPages)}
+            sx={{
+              backgroundColor: currentPage === totalPages ? "white" : "#1da1f2",
+            }}
           >
             <KeyboardDoubleArrowRightIcon />
           </IconButton>
@@ -179,9 +227,26 @@ const DataWrapper = styled(Box)`
   .delete-selected-users-btn {
     background-color: #ff3f3f;
     color: white;
+    width: 11rem;
   }
 
   .delete-selected-users-btn:hover {
     background-color: #ff3f3f;
+  }
+
+  .page-numbers-container {
+    width: calc(100% - 11rem);
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .nav-btn {
+    /* background-color: #1da1f2; */
+    color: white;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid #1da1f2;
+    cursor: pointer;
   }
 `;
